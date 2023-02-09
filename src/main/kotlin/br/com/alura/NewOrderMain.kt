@@ -1,5 +1,6 @@
 package br.com.alura
 
+import br.com.alura.config.KafkaProducerConfig
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -11,39 +12,10 @@ const val ECOMMERCE_TOPIC = "ECOMMERCE_NEW_ORDER"
 const val EMAIL_TOPIC = "ECOMMERCE_SEND_EMAIL"
 
 fun main() {
-    val kafkaProducer = KafkaProducer<String, String>(properties())
-
-    val record = ProducerRecord(ECOMMERCE_TOPIC, "123", "456789")
-    sendRecord(record = record, kafkaProducer = kafkaProducer)
+    val kafkaProducerConfig = KafkaProducerConfig()
+    kafkaProducerConfig.sendRecord(topic = ECOMMERCE_TOPIC, value = "456789")
     println()
-    val emailRecord = ProducerRecord(EMAIL_TOPIC, "a@gmail.com", "Your order is being processed!")
-    sendRecord(record = emailRecord, kafkaProducer = kafkaProducer)
 
+    kafkaProducerConfig.sendRecord(EMAIL_TOPIC, value = "Your order is being processed!")
 }
 
-private fun properties(): Properties {
-    val properties = Properties()
-    properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092")
-    properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
-    properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
-    return properties
-}
-
-private fun sendRecord(
-    record: ProducerRecord<String, String>,
-    kafkaProducer: KafkaProducer<String, String>
-) {
-    kafkaProducer.send(record) { data, ex ->
-        if(ex != null) {
-            ex.printStackTrace()
-            return@send
-        }
-        println(dataLog(data))
-    }.get()
-}
-
-fun dataLog(data: RecordMetadata) =
-            "${data.topic()} : " +
-            "\npartition ${data.partition()} " +
-            "\noffset ${data.offset()} " +
-            "\ntimestamp ${data.timestamp()}"
