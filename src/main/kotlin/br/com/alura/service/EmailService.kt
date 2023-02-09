@@ -8,12 +8,12 @@ import java.time.Duration
 import java.util.Collections
 import java.util.Properties
 
-private const val ECOMMERCE_TOPIC = "ECOMMERCE_NEW_ORDER"
-private const val GROUP_ID = "FRAUD_DETECTOR_SERVICE"
+private const val EMAIL_TOPIC = "ECOMMERCE_SEND_EMAIL"
+private const val GROUP_ID = "EMAIL_SERVICE"
 
 fun main() {
     val consumer = KafkaConsumer<String, String>(properties())
-    consumer.subscribe(Collections.singletonList(ECOMMERCE_TOPIC))
+    consumer.subscribe(Collections.singletonList(EMAIL_TOPIC))
     while(true){
         val records = consumer.poll(Duration.ofMillis(100L))
         if (!records.isEmpty) for (record in records) dataLog(record)
@@ -32,11 +32,11 @@ private fun properties(): Properties {
 private fun dataLog(data: ConsumerRecord<String, String>) =
     println(
         "-----------------------------------------" +
-        "\nProcessing new order, checking for fraud!" +
+        "\nSending e-mail!" +
         "\n${data.topic()} : " +
         "\npartition ${data.partition()} " +
         "\noffset ${data.offset()} " +
         "\ntimestamp ${data.timestamp()}" +
-        "\nOrder Processed!" +
+        "\nEmail sent!" +
         "\n-----------------------------------------"
     )
