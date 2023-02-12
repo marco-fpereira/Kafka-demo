@@ -1,5 +1,6 @@
 package br.com.alura.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -7,16 +8,17 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
-class KafkaProducerConfig {
+class KafkaProducerConfig<T> {
 
     private val kafkaProducer = KafkaProducer<String, String>(properties())
 
     fun sendRecord(
         topic: String,
         key: String = UUID.randomUUID().toString(),
-        value: String
+        value: T
     ) {
-        val record = ProducerRecord(topic, key, value)
+        val stringValue = ObjectMapper().writeValueAsString(value)
+        val record = ProducerRecord(topic, key, stringValue)
         kafkaProducer.send(record) { data, ex ->
             if(ex != null) {
                 ex.printStackTrace()

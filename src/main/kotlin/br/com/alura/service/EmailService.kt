@@ -12,7 +12,11 @@ class EmailService {
         @JvmStatic
         fun main(args: Array<String>) {
             val emailService = EmailService()
-            val kafkaConsumerConfig = KafkaConsumerConfig(EMAIL_TOPIC, GROUP_ID, emailService::dataLog)
+            val kafkaConsumerConfig = KafkaConsumerConfig(
+                topic = EMAIL_TOPIC,
+                groupId = GROUP_ID,
+                dataLog = emailService::dataLog
+            )
             kafkaConsumerConfig.run()
         }
     }
@@ -22,6 +26,7 @@ class EmailService {
             "-----------------------------------------" +
                     "\nSending e-mail!" +
                     "\n${data.topic()} : " +
+                    "\n${data.value()}" +
                     "\npartition ${data.partition()} " +
                     "\noffset ${data.offset()} " +
                     "\ntimestamp ${data.timestamp()}" +

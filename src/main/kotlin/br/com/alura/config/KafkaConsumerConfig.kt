@@ -1,5 +1,6 @@
 package br.com.alura.config
 
+import br.com.alura.dto.enums.TopicNamePatternEnum
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -7,19 +8,22 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import java.time.Duration
 import java.util.*
 import kotlin.reflect.KFunction1
-private const val GROUP_ID = "FRAUD_DETECTOR_SERVICE"
+import java.util.regex.Pattern
 
-class KafkaConsumerConfig(
+class KafkaConsumerConfig<T>(
     private val topic: String,
+    private val topicNamePattern: TopicNamePatternEnum = TopicNamePatternEnum.STRING,
     private val groupId: String,
-    val dataLog: KFunction1<ConsumerRecord<String, String>, Unit>
+    val dataLog: KFunction1<ConsumerRecord<String, T>, Unit>
 ) {
 
-    private lateinit var consumer: KafkaConsumer<String, String>
+    private lateinit var consumer: KafkaConsumer<String, T>
 
     fun run() {
-        this.consumer = KafkaConsumer<String, String>(properties())
-        consumer.subscribe(Collections.singletonList(topic))
+        this.consumer = KafkaConsumer<String, T>(properties())
+        if (topicNamePattern == TopicNamePatternEnum.REGEX) consumer.subscribe(Pattern.compile(topic))
+        else consumer.subscribe(Collections.singletonList(topic))
+
         while(true){
             val records = consumer.poll(Duration.ofMillis(100L))
             if (!records.isEmpty) for (record in records) dataLog(record)
