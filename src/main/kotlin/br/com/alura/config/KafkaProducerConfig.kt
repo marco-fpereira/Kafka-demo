@@ -33,6 +33,8 @@ class KafkaProducerConfig<T> {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092")
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+        // MAKES SURE ALL REPLICAS ACKNOWLEDGED TO THE LEADER THEY RECEIVED A MESSAGE BEFORE IT'S CONSIDERED COMPLETE
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all")
         return properties
     }
 
